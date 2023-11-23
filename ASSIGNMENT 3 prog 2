@@ -1,0 +1,135 @@
+import customtkinter
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import threading
+from tkinter import PhotoImage
+from tkinter import font
+
+customtkinter.set_default_color_theme("green")
+customtkinter.set_appearance_mode("system")
+
+window = customtkinter.CTk()
+window.title("PLD ASSIGNMENT 3")
+window.geometry('1200x1000')
+frame = customtkinter.CTkFrame(window)
+frame.pack(expand = True, padx = 10, pady =10, ipadx= 100, ipady = 100)
+
+# user info framex
+
+def enter():
+    
+    money = float(money_entry.get())
+    price = float(price_entry.get())
+    
+    quantity_apple = (money//price)
+    amount_change = (money - (quantity_apple*price))
+    
+    apple = int(quantity_apple)
+    total_quantity_apple = f"You can purchase {apple} apple. " 
+    total_amout_change =  f"Your change will be: ₱{amount_change}"
+    
+    
+    app = customtkinter.CTk()
+    app.title("RESULT")
+    app.geometry ('800x800')
+    frame = customtkinter.CTkFrame(app)
+    frame.pack( expand = True)
+    
+    apple_text = customtkinter.CTkLabel(frame, text = total_quantity_apple, font= ("Impact", 32) )
+    apple_text.pack()
+    orange_text = customtkinter.CTkLabel(frame, text = total_amout_change, font= ("Impact", 32))
+    orange_text.pack()
+    
+    
+    app.mainloop()
+ 
+    
+    
+    
+    
+info_frame =customtkinter.CTkFrame(frame, corner_radius=20 )
+info_frame.pack(ipadx = 10, ipady= 10, side = "top")
+price_frame = customtkinter.CTkFrame (frame, corner_radius=20 )
+price_frame.place(x = 720, y = 350)
+
+money_frame = customtkinter.CTkFrame (frame, corner_radius=20 )
+money_frame.place(x = 720, y = 550)
+photo_frame = customtkinter.CTkFrame (frame ,corner_radius=20 )
+photo_frame.pack(padx = 20, pady=10, side = "left")
+
+#GIF
+gif_frames = []
+
+frame_delay = 0
+
+def ready_gif():
+    global frame_delay
+    gif_file = Image.open('PLD.gif')
+        
+    for r in range(0, gif_file.n_frames):
+           
+           gif_file.seek(r)
+           gif_frames.append(gif_file.copy())
+    frame_delay = gif_file.info['duration']
+    print('Complete')
+    play_gif()
+
+frame_count = -1
+
+def play_gif():
+    global frame_count, current_frame
+    
+    if frame_count >= len(gif_frames) -1:
+        frame_count =-1
+        play_gif()
+    
+    else:
+        
+        frame_count +=1
+        
+        current_frame = ImageTk.PhotoImage(gif_frames[frame_count])
+        gif_lb.config(image=current_frame)
+        photo_frame.after (frame_delay, play_gif)
+
+    
+    
+
+gif_lb = tk.Label(photo_frame)
+gif_lb.pack ()
+ 
+threading.Thread(target=ready_gif).start()
+ready_gif() 
+
+#ENTRIES
+money_entry = customtkinter.CTkEntry (money_frame, placeholder_text= "Enter Amount" )
+money_entry.pack(padx = 20, pady=20, side = 'bottom')
+price_entry = customtkinter.CTkEntry (price_frame, placeholder_text= "Enter Price" )
+price_entry.pack(padx = 20, pady=20, side = 'bottom')
+
+info_label = customtkinter.CTkLabel (info_frame, text= "Enter the amount of Money you had.\nand\n Enter the price of the Apple.", font= ("impact", 20), anchor="center" )
+info_label.pack(padx = 20, pady=20)
+money_label = customtkinter.CTkLabel (money_frame, text = "Input your Balance\n ",font= ("Arial", 18))
+money_label.pack(padx = 20, pady= 20, side = "top")
+peso_logo= PhotoImage( file = 'PESO.png')
+tk.Label(money_frame,image = peso_logo, width = 40, height = 40).place(x= 70, y= 50)
+
+apple_label = customtkinter.CTkLabel (price_frame, text = "Input the price \nof the Apple\n  ", font= ("Arial", 18))
+apple_logo= PhotoImage( file = 'APPLE.png')
+tk.Label(price_frame,image = apple_logo, width = 40, height = 40).place(x= 70, y= 67)
+apple_label.pack(padx = 20, pady= 20, side = "top")
+    
+
+    #BUTTON
+button_frame = customtkinter.CTkFrame(frame, width = 10)
+button_frame.pack( side= 'bottom', pady = 200)
+enter_data = customtkinter.CTkButton (button_frame, text  = "submit", command= enter)
+enter_data.pack()
+
+
+    
+
+
+
+window.mainloop()
+

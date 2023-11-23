@@ -1,0 +1,274 @@
+import customtkinter
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import threading
+from tkinter import PhotoImage
+
+
+customtkinter.set_default_color_theme("green")
+customtkinter.set_appearance_mode("dark")
+
+window = customtkinter.CTk()
+window.title("PLD ASSIGNMENT 3")
+window.geometry('1200x1000')
+frame = customtkinter.CTkFrame(window)
+frame.pack(expand = True)
+
+# user info framex
+
+def enter():
+    apple = spinbox_apple.get()
+    orange = spinbox_orange.get()
+    
+    sum_apple = 20*apple
+    sum_orange = 25*orange
+    sum_all = sum_apple + sum_orange
+    total_apple = f"Total amount of Apple: ₱{sum_apple}" 
+    total_orange =  f"Total amount of Orange: ₱{sum_orange}"
+    total_sum = f"Total amount you have to pay: ₱{sum_all}"
+    
+    app = customtkinter.CTk()
+    app.title("RESULT")
+    app.geometry('500x500')
+    frame = customtkinter.CTkFrame(app)
+    frame.pack_propagate(0)
+    frame.pack( expand = True)
+    
+    
+    apple_text = customtkinter.CTkLabel(frame, text = total_apple, font = ("Impact", 18) )
+    apple_text.pack()
+    orange_text = customtkinter.CTkLabel(frame, text = total_orange, font = ("Impact", 18))
+    orange_text.pack()
+    sum_text = customtkinter.CTkLabel(frame, text = total_sum, font = ("Impact", 18))
+    sum_text.pack()
+    
+    app.mainloop()
+    
+    
+    
+info_frame =customtkinter.CTkFrame(frame, corner_radius=20)
+info_frame.pack(ipadx = 10, ipady= 10, padx = 10, pady= 10, side = "top")
+
+apple_frame = customtkinter.CTkFrame (frame, corner_radius=20)
+apple_frame.pack(padx = 10, pady= 10, side = "right")
+orange_frame = customtkinter.CTkFrame (frame, corner_radius=20)
+orange_frame.pack(padx = 10, pady= 10, side = "right")
+    
+photo_frame = customtkinter.CTkFrame (frame, corner_radius=20)
+photo_frame.pack(padx = 10, pady=10, side = "left")
+
+#GIF
+gif_frames = []
+
+frame_delay = 0
+
+def ready_gif():
+    global frame_delay
+    gif_file = Image.open('PLD.gif')
+        
+    for r in range(0, gif_file.n_frames):
+           
+           gif_file.seek(r)
+           gif_frames.append(gif_file.copy())
+    frame_delay = gif_file.info['duration']
+    print('Complete')
+    play_gif()
+
+frame_count = -1
+
+def play_gif():
+    global frame_count, current_frame
+    
+    if frame_count >= len(gif_frames) -1:
+        frame_count =-1
+        play_gif()
+    
+    else:
+        
+        frame_count +=1
+        
+        current_frame = ImageTk.PhotoImage(gif_frames[frame_count])
+        gif_lb.config(image=current_frame)
+        photo_frame.after (frame_delay, play_gif)
+
+    
+    
+
+gif_lb = tk.Label(photo_frame)
+gif_lb.pack ()
+ 
+threading.Thread(target=ready_gif).start()
+ready_gif() 
+  
+
+    # texts
+header_label = customtkinter.CTkLabel(info_frame, text = "Enter the amount of Apples and Oranges you want to buy.", font= ("Arial", 20))
+header_label.grid (row = 0, column = 0, padx= 20, pady = 20)
+
+price_apple_label = customtkinter.CTkLabel (frame,text = "Price\nfor an\nApple = ₱20", font= ("Impact", 20))
+price_apple_label.place( x =890, y=350)
+price_orange_label = customtkinter.CTkLabel (frame,text = "Price\nfor an\nOrange = ₱25", font= ("Impact", 20))
+price_orange_label.place(x =680 , y=350)
+apple_label =  customtkinter.CTkLabel (apple_frame, text ="Apple:", font= ("Impact", 28), text_color="#FF7F7F" )
+apple_label.grid (row = 1, column = 0, padx= 20, pady = 20)
+apple_logo= PhotoImage( file = 'APPLE.png')
+tk.Label(apple_frame,image = apple_logo, width = 40, height = 40).place(x= 70, y= 53)
+apple_label.grid (row = 1, column = 0, padx= 20, pady = 20)
+    # APPLE ENTRIES
+class FloatSpinbox(customtkinter.CTkFrame):
+        def __init__(self, *args,
+                    width: int = 100,
+                    height: int = 32,
+                    step_size: [int, float] = 1,
+                    command: callable = None,
+                    **kwargs):
+            super().__init__(*args, width=width, height=height, **kwargs)
+
+            self.step_size = step_size
+            self.command = command
+
+            self.configure(fg_color=("gray78", "gray28"))  # set frame color
+
+            self.grid_columnconfigure((0, 2), weight=0)  # buttons don't expand
+            self.grid_columnconfigure(1, weight=1)  # entry expands
+
+            self.subtract_button = customtkinter.CTkButton(self, text="-", width=height-6, height=height-6,
+                                                        command=self.subtract_button_callback)
+            self.subtract_button.grid(row=0, column=0, padx=(3, 0), pady=3)
+
+            self.entry = customtkinter.CTkEntry(self, width=width-(2*height), height=height-6, border_width=0)
+            self.entry.grid(row=0, column=1, columnspan=1, padx=3, pady=3, sticky="ew")
+
+            self.add_button = customtkinter.CTkButton(self, text="+", width=height-6, height=height-6,
+                                                    command=self.add_button_callback)
+            self.add_button.grid(row=0, column=2, padx=(0, 3), pady=3)
+
+            # default value
+            self.entry.insert(0, "0.0")
+
+        def add_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) + self.step_size
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def subtract_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) - self.step_size
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def get(self) ->[float, None]:
+            try:
+                return float(self.entry.get())
+            except ValueError:
+                return None
+
+        def set(self, value: float):
+            self.entry.delete(0, "end")
+            self.entry.insert(0, str(float(value)))
+            
+            
+
+spinbox_apple = FloatSpinbox(apple_frame, width=150, step_size=1)
+spinbox_apple.grid(padx=20, pady=20)
+
+spinbox_apple.set(0)
+
+
+    # ORANGE ENTRIES
+orange_label =  customtkinter.CTkLabel (orange_frame, text ="Orange:", font= ("Impact", 28), text_color="#FF9912" )
+orange_logo= PhotoImage( file = 'ORANGE.png')
+
+tk.Label(orange_frame,image = orange_logo, width = 40, height = 40).place(x= 70, y= 53)
+orange_label.grid (row = 1, column = 0, padx= 20, pady = 20)
+class FloatSpinbox(customtkinter.CTkFrame):
+        def __init__(self, *args,
+                    width: int = 100,
+                    height: int = 32,
+                    step_size: [int, float] = 1,
+                    command: callable = None,
+                    **kwargs):
+            super().__init__(*args, width=width, height=height, **kwargs)
+
+            self.step_size = step_size
+            self.command = command
+
+            self.configure(fg_color=("gray78", "gray28"))  # set frame color
+
+            self.grid_columnconfigure((0, 2), weight=0)  # buttons don't expand
+            self.grid_columnconfigure(1, weight=1)  # entry expands
+
+            self.subtract_button = customtkinter.CTkButton(self, text="-", width=height-6, height=height-6,
+                                                        command=self.subtract_button_callback)
+            self.subtract_button.grid(row=0, column=0, padx=(3, 0), pady=3)
+
+            self.entry = customtkinter.CTkEntry(self, width=width-(2*height), height=height-6, border_width=0)
+            self.entry.grid(row=0, column=1, columnspan=1, padx=3, pady=3, sticky="ew")
+            self.add_button = customtkinter.CTkButton(self, text="+", width=height-6, height=height-6,
+
+                                                    command=self.add_button_callback)
+            self.add_button.grid(row=0, column=2, padx=(0, 3), pady=3)
+
+            # default value
+            self.entry.insert(0, "0.0")
+
+        def add_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) + self.step_size
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def subtract_button_callback(self):
+            if self.command is not None:
+                self.command()
+            try:
+                value = float(self.entry.get()) - self.step_size
+                self.entry.delete(0, "end")
+                self.entry.insert(0, value)
+            except ValueError:
+                return
+
+        def get(self) ->[float, None]:
+            try:
+                return float(self.entry.get())
+            except ValueError:
+                return None
+
+        def set(self, value: float):
+            self.entry.delete(0, "end")
+            self.entry.insert(0, str(float(value)))
+            
+            
+
+spinbox_orange = FloatSpinbox(orange_frame, width=150, step_size=1)
+spinbox_orange.grid(padx=20, pady=20)
+
+spinbox_orange.set(0)
+
+    #BUTTON
+button_frame = customtkinter.CTkFrame(frame)
+button_frame.place(x= 730, y= 800)
+enter_data = customtkinter.CTkButton (button_frame, text  = "submit",width= 200, height=50, border_color= "#66CDAA",border_width= 5,corner_radius = 10,command= enter)
+enter_data.pack()
+
+
+    
+
+
+
+window.mainloop()
+
