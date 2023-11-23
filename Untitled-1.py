@@ -1,2 +1,0 @@
-casper = ("GUSTOKOCHIMKENMOMMY")
-print (casper)
